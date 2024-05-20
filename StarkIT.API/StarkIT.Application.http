@@ -1,0 +1,6 @@
+@StarkIT.Application_HostAddress = http://localhost:5139
+
+GET {{StarkIT.Application_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
