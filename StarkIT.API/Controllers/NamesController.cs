@@ -34,37 +34,20 @@ namespace StarkIT.API.Controllers
         [ResponseCache(Duration = 20)]
         public async Task<IActionResult> GetNames([FromQuery] string? name = null, string? gender = null)
         {
-            try
+            if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(gender))
             {
-                if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(gender))
-                {
-                    var query = new GetNamesListQuery();
-                    return Ok(await _mediator.Send(query));
-                }
-                else if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(gender))
-                {
-                    if (!Enum.TryParse<Gender>(gender, out var parsedGender)) 
-                        return BadRequest("The gender type is not correct");
-
-                    var query = new GetNamesListFilteredQuery(name,parsedGender);
-
-                    return Ok(await _mediator.Send(query));
-                }
-                else
-                {
-                    return BadRequest("Both Name and Gender must be provided together or not at all.");
-                }
+                var query = new GetNamesListQuery();
+                return Ok(await _mediator.Send(query));
             }
-            catch (ValidationException ex)
+            else if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(gender))
             {
-                return BadRequest(ex.Errors.Select(x => x.ErrorMessage));
+                var query = new GetNamesListFilteredQuery(name,gender);
+                return Ok(await _mediator.Send(query));
             }
-            catch(Exception ex)
+            else
             {
-                _logger.LogError("NamesController - An unexpected error occurred - {@exception}", ex);
-                return StatusCode(500, ex.Message);
+                return BadRequest("Both Name and Gender must be provided together or not at all.");
             }
-            
         }
 
         [HttpPost]

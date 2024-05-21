@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using FluentValidation.Results;
+using MediatR;
 using StarkIT.Domain.Models;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -12,10 +14,12 @@ namespace StarkIT.Application.Features.Name.Queries.GetNamesListFiltered
         public Gender Gender { get; set; }
 
         public Expression<Func<Names,bool>> _Expression { get; set; }
-        public GetNamesListFilteredQuery(string name, Gender gender)
+        public GetNamesListFilteredQuery(string name, string? gender)
         {
             Name = name.ToUpper();
-            Gender = gender;
+            Gender = Enum.TryParse<Gender>(gender, out var parsedGender) ? parsedGender : 
+                throw new ValidationException("",[ new ValidationFailure("Gender", "Gender field has to be Enum type")] );
+            
             _Expression = x => x.Name.ToUpper().StartsWith(Name) && x.Gender == Gender;
         }
     }

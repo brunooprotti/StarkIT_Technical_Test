@@ -4,6 +4,8 @@ using StarkIT.Infrastructure.Persistence;
 using StarkIT.Infrastructure;
 using StarkIT.Application;
 using StarkIT.Domain.Models;
+using StarkIT.API.Middleware;
+using Microsoft.AspNetCore.HttpsPolicy;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +27,7 @@ builder.Services.AddSingleton<ILoggerProvider, NLogLoggerProvider>();
 //Add services from other layers
 builder.Services.AddInfrastructureService();
 builder.Services.AddAplicationServices();
-
+builder.Services.AddTransient<ExceptionHandlingMiddleware>();
 
 var app = builder.Build();
 
@@ -35,6 +37,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 
