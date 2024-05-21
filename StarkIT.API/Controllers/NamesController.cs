@@ -1,11 +1,11 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Extensions;
-using StarkIT.Application.Contracts.Persistence;
-using StarkIT.Application.Features.Users.Queries.GetNamesList;
-using StarkIT.Application.Features.Users.Queries.GetNamesListFiltered;
+using StarkIT.Application.Features.Name.Commands.CreateNewName;
+using StarkIT.Application.Features.Name.Queries.GetNamesList;
+using StarkIT.Application.Features.Name.Queries.GetNamesListFiltered;
 using StarkIT.Domain.Models;
-using System.Collections.ObjectModel;
 using System.Net;
 
 namespace StarkIT.API.Controllers
@@ -16,21 +16,23 @@ namespace StarkIT.API.Controllers
     {
         private readonly IMediator _mediator;
         private readonly ILogger<NamesController> _logger;
+        private readonly IMapper _mapper;
 
-        public NamesController(IMediator mediator, ILogger<NamesController> logger)
+        public NamesController(IMediator mediator, ILogger<NamesController> logger, IMapper mapper)
         {
             _mediator = mediator;
             _logger = logger;
+            _mapper = mapper;
         }
 
         [HttpGet]
-        [ProducesResponseType(typeof(ICollection<User>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ICollection<Names>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetNames([FromQuery] string name = null, string gender = null)
+        public async Task<IActionResult> GetNames([FromQuery] string? name = null, string? gender = null)
         {
-            ICollection<User> listNames;
+            ICollection<Names> listNames;
 
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(gender))
             {
@@ -40,8 +42,8 @@ namespace StarkIT.API.Controllers
             else
             {
                 var query = new GetNamesListFilteredQuery(x =>
-                    x.Name.ToUpper().StartsWith(name.ToUpper()) ||
-                    x.Gender.GetDisplayName() == gender.ToUpper());
+                    x.Name.ToUpper().StartsWith(name!.ToUpper()) ||
+                    x.Gender.GetDisplayName() == gender!.ToUpper());
 
                 listNames = await _mediator.Send(query);
             }
@@ -49,15 +51,28 @@ namespace StarkIT.API.Controllers
             return Ok(listNames);
         }
 
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+        public async Task<IActionResult> CreateName(CreateNewNameCommand newNameObject) 
+        {
+            var result = await _mediator.Send(newNameObject);
+
+            return Ok();
+        }
+
         //Si el requerimiento puede admitir un endpoint mas este seria el URL
         //[HttpGet("filtered")]
-        //[ProducesResponseType(typeof(ICollection<User>),(int)HttpStatusCode.OK)]
+        //[ProducesResponseType(typeof(ICollection<Names>),(int)HttpStatusCode.OK)]
         //[ProducesResponseType(StatusCodes.Status404NotFound)]
         //[ProducesResponseType(StatusCodes.Status500InternalServerError)]
         //public async Task<IActionResult> GetNamesFiltered([FromQuery] string name, string gender)
         //{
         //    var query = new GetNamesListFilteredQuery(x => 
-        //        x.Name.ToUpper().StartsWith(name.ToUpper()) && 
+        //        x.Names.ToUpper().StartsWith(name.ToUpper()) && 
         //        x.Gender.ToString() == gender.ToUpper());
 
         //    var listNames = await _mediator.Send(query);

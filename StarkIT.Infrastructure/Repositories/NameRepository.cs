@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace StarkIT.Infrastructure.Repositories
 {
-    public class UserRepository : BaseRepository<User>, IUserRepository
+    public class NameRepository : BaseRepository<Names>, INameRepository
     {
-        public UserRepository(ApplicationDbContext context) : base(context)
+        public NameRepository(ApplicationDbContext context) : base(context)
         {
         }
     }

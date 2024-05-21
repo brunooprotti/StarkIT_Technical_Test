@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace StarkIT.Application.Behaviours
 {
@@ -15,20 +16,23 @@ namespace StarkIT.Application.Behaviours
 
         public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting request {@RequestName} - {@DateTimeUtc}", typeof(TRequest).Name, DateTime.UtcNow);
-
-            TResponse result;
+            var stopwatch = Stopwatch.StartNew();
 
             try
             {
-                result = await next();
-                _logger.LogInformation("Completed request {@RequestName} - {@DateTimeUtc}", typeof(TRequest).Name, DateTime.UtcNow);
+                var result = await next();
+
+                stopwatch.Stop();
+                
+                _logger.LogInformation("LoggingPipelineBehaviour - Completed request {@RequestName} in {@stopwatch}s", typeof(TRequest).Name, stopwatch.ElapsedMilliseconds);
 
                 return result;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Request {@RequestName} failed - {@DateTimeUtc}", typeof(TRequest).Name, DateTime.UtcNow);
+                stopwatch.Stop();
+                
+                _logger.LogError(ex, "LoggingPipelineBehaviour - Request {@RequestName} failed in {@stopwatch}s", typeof(TRequest).Name, stopwatch.ElapsedMilliseconds);
                 throw;
             }
         }

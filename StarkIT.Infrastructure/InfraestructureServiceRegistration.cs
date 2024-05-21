@@ -11,10 +11,10 @@ namespace StarkIT.Infrastructure
     {
         public static IServiceCollection AddInfrastructureService(this IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options =>  options.UseInMemoryDatabase("UserDatabase"));
+            services.AddDbContext<ApplicationDbContext>(options =>  options.UseInMemoryDatabase("NameDatabase"));
 
             services.AddScoped(typeof(IBaseRepository<>),typeof(BaseRepository<>));
-            services.AddScoped<IUserRepository,UserRepository>();
+            services.AddScoped<INameRepository,NameRepository>();
             services.AddTransient<DatabaseSeed>();
 
             return services;

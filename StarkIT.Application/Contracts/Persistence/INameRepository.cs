@@ -2,7 +2,7 @@
 
 namespace StarkIT.Application.Contracts.Persistence
 {
-    public interface IUserRepository : IBaseRepository<User>
+    public interface INameRepository : IBaseRepository<Names>
     {
 
     }

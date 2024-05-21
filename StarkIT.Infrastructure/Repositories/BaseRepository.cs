@@ -26,8 +26,26 @@ namespace StarkIT.Infrastructure.Repositories
 
         public async Task<ICollection<T>> Get(Expression<Func<T, bool>> expression)
         {
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
             return await _context.Set<T>().Where(expression).ToListAsync();
         }
 
+        public async Task<bool> Create(T entity)
+        {
+            try
+            {
+                await _context.Set<T>().AddAsync(entity);
+                var result = await _context.SaveChangesAsync();
+                return result > 0;
+            }
+            catch (DbUpdateException ex)
+            {
+                throw new Exception($"A database error occurred while creating the entity {typeof(T)}.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"An unexpected error occurred while creating the entity {typeof(T)}.", ex);
+            }
+        }
     }
 }

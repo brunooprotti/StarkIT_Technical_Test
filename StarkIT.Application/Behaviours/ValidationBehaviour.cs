@@ -6,10 +6,10 @@ namespace StarkIT.Application.Behaviours
 {
     public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
     {
-        private readonly ICollection<IValidator<TRequest>> _validators;
+        private readonly IEnumerable<IValidator<TRequest>> _validators;
         private readonly ILogger<ValidationBehaviour<TRequest,TResponse>> _logger;
 
-        public ValidationBehaviour(ICollection<IValidator<TRequest>> validators, ILogger<ValidationBehaviour<TRequest,TResponse>> logger)
+        public ValidationBehaviour(IEnumerable<IValidator<TRequest>> validators, ILogger<ValidationBehaviour<TRequest,TResponse>> logger)
         {
             _validators = validators;
             _logger = logger;
@@ -36,7 +36,7 @@ namespace StarkIT.Application.Behaviours
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "ValidationBehaviour: One or more validators errors were found - {@DateTimeUtc}", DateTime.UtcNow);
+                _logger.LogError(ex, "ValidationBehaviour: One or more validators errors were found");
                 throw;
             }
 

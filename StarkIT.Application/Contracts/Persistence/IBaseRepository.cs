@@ -12,5 +12,6 @@ namespace StarkIT.Application.Contracts.Persistence
     {
         Task<ICollection<T>> GetAll();
         Task<ICollection<T>> Get(Expression<Func<T,bool>> expression);
+        Task<bool> Create(T entity);
     }
 }

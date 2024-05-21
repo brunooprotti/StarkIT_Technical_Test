@@ -1,6 +1,6 @@
 ﻿namespace StarkIT.Domain.Models
 {
-    public class User
+    public class Names
     {
         public int Id { get; set; }
         public Gender Gender { get; set; }
@@ -10,7 +10,7 @@
 
     public class ResponseDb
     {
-        public ICollection<User>? Response { get; set; }
+        public ICollection<Names>? Response { get; set; }
     }
     public enum Gender { F, M };
 }

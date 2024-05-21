@@ -16,7 +16,7 @@ namespace StarkIT.Infrastructure.Persistence
             _logger = logger;
         }
 
-        public DbSet<User>? Users { get; set; }
+        public DbSet<Names>? Names { get; set; }
 
     }
 }

@@ -9,8 +9,8 @@ namespace StarkIT.Infrastructure.Persistence
 {
     public class DatabaseSeed
     {
-        private static ILogger<DatabaseSeed> _logger;
-        private static IConfiguration _configuration;
+        private static ILogger<DatabaseSeed>? _logger;
+        private static IConfiguration? _configuration;
 
         public DatabaseSeed(ILogger<DatabaseSeed> logger, IConfiguration configuration)
         {
@@ -24,26 +24,26 @@ namespace StarkIT.Infrastructure.Persistence
             {
                 if (await context.Database.EnsureCreatedAsync()) 
                 {
-                    if (!context.Users.Any())
+                    if (!context.Names!.Any())
                     {
-                        context.Users.AddRange(GetDataUsers());
+                        context.Names!.AddRange(GetDataNames());
                         await context.SaveChangesAsync();
-                        _logger.LogInformation("Database in memory is created");
+                        _logger?.LogInformation("Database in memory is created");
                     }
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while creating the database.");
+                _logger?.LogError(ex, "An error occurred while creating the database.");
                 throw new Exception("An error occurred while creating the database.", ex);
             }
 
         }
 
-        private static ICollection<User> GetDataUsers()
+        private static ICollection<Names> GetDataNames()
         {
-            var usersDatabase = File.ReadAllText(_configuration.GetSection("pathJsonNamesFile").Value!);
-            var data = new ResponseDb();//JsonConvert.DeserializeObject<ResponseDb>(usersDatabase) ?? new ResponseDb();
+            var namesDatabase = File.ReadAllText(_configuration?.GetSection("pathJsonNamesFile").Value!);
+            var data = JsonConvert.DeserializeObject<ResponseDb>(namesDatabase) ?? new ResponseDb();
 
             if (data.Response != null && data.Response.Any())
             {
