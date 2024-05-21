@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Extensions;
@@ -32,27 +33,38 @@ namespace StarkIT.API.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetNames([FromQuery] string? name = null, string? gender = null)
         {
-            ICollection<Names> listNames;
+            try
+            {
+                if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(gender))
+                {
+                    var query = new GetNamesListQuery();
+                    return Ok(await _mediator.Send(query));
+                }
+                else if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(gender))
+                {
+                    if (!Enum.TryParse<Gender>(gender, out var parsedGender)) return BadRequest("The gender type is not correct");
 
-            if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(gender))
-            {
-                var query = new GetNamesListQuery();
-                return Ok(await _mediator.Send(query));
-            }
-            else if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(gender)) 
-            {
-                if ( !Enum.TryParse<Gender>(gender, out var parsedGender)) return BadRequest("The gender type is not correct");
-                
-                var query = new GetNamesListFilteredQuery(x =>
-                   x.Name.ToUpper().StartsWith(name!.ToUpper()) &&
-                   (x.Gender == parsedGender));
+                    var query = new GetNamesListFilteredQuery(x =>
+                       x.Name.ToUpper().StartsWith(name!.ToUpper()) &&
+                       (x.Gender == parsedGender));
 
-                return Ok(await _mediator.Send(query));
+                    return Ok(await _mediator.Send(query));
+                }
+                else
+                {
+                    return BadRequest("Both Name and Gender must be provided together or not at all.");
+                }
             }
-            else
+            catch (ValidationException ex)
             {
-                return BadRequest("Both Name and Gender must be provided together or not at all.");
+                return BadRequest(ex.Errors);
             }
+            catch(Exception ex)
+            {
+                _logger.LogError("NamesController - An unexpected error occurred - {@exception}", ex);
+                return StatusCode(500, ex.Message);
+            }
+            
         }
 
         [HttpPost]
@@ -63,9 +75,21 @@ namespace StarkIT.API.Controllers
 
         public async Task<IActionResult> CreateName(CreateNewNameCommand newNameObject) 
         {
-            var result = await _mediator.Send(newNameObject);
+            try
+            {
+                var result = await _mediator.Send(newNameObject);
 
-            return Ok();
+                return Ok();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(ex.Errors);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("NamesController - An unexpected error occurred - {@exception}", ex);
+                return StatusCode(500, ex.Message);
+            }
         }
 
         //Si el requerimiento puede admitir un endpoint mas este seria el URL
