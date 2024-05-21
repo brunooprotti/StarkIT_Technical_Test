@@ -37,18 +37,22 @@ namespace StarkIT.API.Controllers
             if (string.IsNullOrEmpty(name) && string.IsNullOrEmpty(gender))
             {
                 var query = new GetNamesListQuery();
-                listNames = await _mediator.Send(query);
+                return Ok(await _mediator.Send(query));
+            }
+            else if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(gender)) 
+            {
+                if ( !Enum.TryParse<Gender>(gender, out var parsedGender)) return BadRequest("The gender type is not correct");
+                
+                var query = new GetNamesListFilteredQuery(x =>
+                   x.Name.ToUpper().StartsWith(name!.ToUpper()) &&
+                   (x.Gender == parsedGender));
+
+                return Ok(await _mediator.Send(query));
             }
             else
             {
-                var query = new GetNamesListFilteredQuery(x =>
-                    x.Name.ToUpper().StartsWith(name!.ToUpper()) ||
-                    x.Gender.GetDisplayName() == gender!.ToUpper());
-
-                listNames = await _mediator.Send(query);
+                return BadRequest("Both Name and Gender must be provided together or not at all.");
             }
-
-            return Ok(listNames);
         }
 
         [HttpPost]
