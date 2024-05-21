@@ -43,6 +43,7 @@ namespace StarkIT.API.Controllers
                 else if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(gender))
                 {
                     if (!Enum.TryParse<Gender>(gender, out var parsedGender)) return BadRequest("The gender type is not correct");
+                        return BadRequest("The gender type is not correct");
 
                     var query = new GetNamesListFilteredQuery(x =>
                        x.Name.ToUpper().StartsWith(name!.ToUpper()) &&
