@@ -8,8 +8,10 @@ namespace StarkIT.Application.Features.Name.Queries.GetNamesListFiltered
         public GetNamesListFilteredQueryValidator()
         {
             RuleFor(x => x.Name)
+                .NotEmpty().WithMessage("Name is required.")
+                .NotNull().WithMessage("Name field can't be null.")
                 .MaximumLength(50).WithMessage("Name field exceeds maximum length (50)")
-                .Must(name => Regex.IsMatch(name, @"^[a-zA-Z]+$")).WithMessage("Name can only contain letters.");
+                .Matches(@"^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ]+$").WithMessage("Name can only contain letters.");
 
             RuleFor(x => x.Gender)
                 .IsInEnum().WithMessage("Gender field has to be Enum type");

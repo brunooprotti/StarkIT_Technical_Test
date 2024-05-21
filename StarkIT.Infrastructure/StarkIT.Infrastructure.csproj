@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\StarkIT.Application\StarkIT.Application.csproj" />
-    <ProjectReference Include="..\StarkIT.Domain\StarkIT.Domain.csproj" />
   </ItemGroup>
 
 </Project>

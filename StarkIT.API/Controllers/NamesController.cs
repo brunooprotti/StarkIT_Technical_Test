@@ -31,6 +31,7 @@ namespace StarkIT.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ResponseCache(Duration = 20)]
         public async Task<IActionResult> GetNames([FromQuery] string? name = null, string? gender = null)
         {
             try
@@ -42,12 +43,10 @@ namespace StarkIT.API.Controllers
                 }
                 else if (!string.IsNullOrEmpty(name) && !string.IsNullOrEmpty(gender))
                 {
-                    if (!Enum.TryParse<Gender>(gender, out var parsedGender)) return BadRequest("The gender type is not correct");
+                    if (!Enum.TryParse<Gender>(gender, out var parsedGender)) 
                         return BadRequest("The gender type is not correct");
 
-                    var query = new GetNamesListFilteredQuery(x =>
-                       x.Name.ToUpper().StartsWith(name!.ToUpper()) &&
-                       (x.Gender == parsedGender));
+                    var query = new GetNamesListFilteredQuery(name,parsedGender);
 
                     return Ok(await _mediator.Send(query));
                 }
@@ -58,7 +57,7 @@ namespace StarkIT.API.Controllers
             }
             catch (ValidationException ex)
             {
-                return BadRequest(ex.Errors);
+                return BadRequest(ex.Errors.Select(x => x.ErrorMessage));
             }
             catch(Exception ex)
             {
